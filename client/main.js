@@ -8,6 +8,7 @@ import "codemirror-graphql/hint";
 import "codemirror-graphql/lint";
 import "codemirror-graphql/mode";
 import gql from "graphql-tag";
+import classNames from "classnames";
 
 const schema = `
 type Query {
@@ -32,6 +33,12 @@ class App extends React.Component {
       });
     });
   }
+
+  selectTab(nextTab) {
+    return () => {
+      this.setState({ currentTab: nextTab });
+    };
+  }
   render() {
     return (
       <div className="panes">
@@ -39,7 +46,36 @@ class App extends React.Component {
           <textarea ref={this.textarea} defaultValue={schema} />
         </div>
         <div className="pane">
-          <pre className="ast">
+          <div className="tabs">
+            <span
+              className={classNames("tab", {
+                active: this.state.currentTab === "graph"
+              })}
+              onClick={this.selectTab("graph")}
+            >
+              Graph
+            </span>
+            <span
+              className={classNames("tab", {
+                active: this.state.currentTab === "ast"
+              })}
+              onClick={this.selectTab("ast")}
+            >
+              AST
+            </span>
+          </div>
+          <div
+            className={classNames("graph", {
+              show: this.state.currentTab === "graph"
+            })}
+          >
+            some bubbles and shit
+          </div>
+          <pre
+            className={classNames("ast", {
+              show: this.state.currentTab === "ast"
+            })}
+          >
             {JSON.stringify(this.state.ast, null, "  ")}
           </pre>
         </div>

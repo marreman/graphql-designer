@@ -31,7 +31,7 @@ type UrlImage {
 }
 `.trim();
 
-const pretty = s => JSON.stringify(s, null, '  ')
+const pretty = s => JSON.stringify(s, null, "  ");
 
 class App extends React.Component {
   constructor(props) {
@@ -42,6 +42,7 @@ class App extends React.Component {
       ast: null
     };
   }
+
   componentDidMount() {
     this.setState({
       ast: gql(this.textarea.current.value)
@@ -69,8 +70,15 @@ class App extends React.Component {
         return (
           <li key={name}>
             {name}
-            <br />
-            <pre>{pretty(def.fields)}</pre>
+            <ul>
+              {def.fields &&
+                def.fields.map(field => (
+                  <li>
+                    <strong>{field.name.value}</strong><br />
+                    <code>{field.type.type.name.value}</code>
+                  </li>
+                ))}
+            </ul>
           </li>
         );
       })

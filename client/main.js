@@ -44,16 +44,20 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({
-      ast: gql(this.textarea.current.value)
-    });
+      this.codeToAst(this.textarea.current.value)
+
     CodeMirror.fromTextArea(this.textarea.current, {
       mode: "graphql"
     }).on("change", cm => {
-      this.setState({
-        ast: gql(cm.getValue())
-      });
+      this.codeToAst(cm.getValue())
     });
+  }
+
+  codeToAst(code) {
+    try {
+      const ast = gql(code)
+      this.setState({ ast });
+    } catch(_) {}
   }
 
   selectTab(nextTab) {
@@ -73,7 +77,7 @@ class App extends React.Component {
             <ul>
               {def.fields &&
                 def.fields.map(field => (
-                  <li>
+                  <li key={field.name.value}>
                     <strong>{field.name.value}</strong><br />
                     <code>{field.type.type.name.value}</code>
                   </li>

@@ -11,20 +11,41 @@ import gql from "graphql-tag";
 import classNames from "classnames";
 
 const schema = `
-type Query {
-  hello: String
+scalar UUID
+scalar Instant
+
+type User {
+  id: UUID!
+  firstName: String!
+  image: Image!
+}
+
+union Image = BundledImage | UrlImage
+
+type BundledImage {
+  identifier: String!
+}
+
+type UrlImage {
+  url: String!
 }
 `.trim();
+
+const pretty = s => JSON.stringify(s, null, '  ')
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.textarea = React.createRef();
     this.state = {
+      currentTab: "graph",
       ast: null
     };
   }
   componentDidMount() {
+    this.setState({
+      ast: gql(this.textarea.current.value)
+    });
     CodeMirror.fromTextArea(this.textarea.current, {
       mode: "graphql"
     }).on("change", cm => {
@@ -39,6 +60,23 @@ class App extends React.Component {
       this.setState({ currentTab: nextTab });
     };
   }
+
+  astToBubbles() {
+    return (
+      this.state.ast &&
+      this.state.ast.definitions.map(def => {
+        const name = def.name ? def.name.value : "<unnamed>";
+        return (
+          <li key={name}>
+            {name}
+            <br />
+            <pre>{pretty(def.fields)}</pre>
+          </li>
+        );
+      })
+    );
+  }
+
   render() {
     return (
       <div className="panes">
@@ -69,14 +107,14 @@ class App extends React.Component {
               show: this.state.currentTab === "graph"
             })}
           >
-            some bubbles and shit
+            {this.astToBubbles()}
           </div>
           <pre
             className={classNames("ast", {
               show: this.state.currentTab === "ast"
             })}
           >
-            {JSON.stringify(this.state.ast, null, "  ")}
+            {pretty(this.state.ast)}
           </pre>
         </div>
       </div>
